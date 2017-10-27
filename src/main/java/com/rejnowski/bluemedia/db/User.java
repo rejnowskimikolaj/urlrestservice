@@ -1,5 +1,7 @@
-package com.rejnowski.bluemedia.model.db;
+package com.rejnowski.bluemedia.db;
 
+
+import org.hibernate.id.IncrementGenerator;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

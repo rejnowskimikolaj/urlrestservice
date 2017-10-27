@@ -12,7 +12,7 @@
         <property name="show_sql">true</property>
         <property name="connection.pool_size">1</property>
 
-        <mapping class="com.rejnowski.bluemedia.model.db.User"></mapping>
+        <mapping class="com.rejnowski.bluemedia.db.User"></mapping>
 
     </session-factory>
 </hibernate-configuration>
