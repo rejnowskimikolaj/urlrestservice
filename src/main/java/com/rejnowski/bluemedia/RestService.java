@@ -8,6 +8,7 @@ import com.rejnowski.bluemedia.model.UrlPostRequest;
 import com.rejnowski.bluemedia.model.UrlPostRequestResponse;
 import com.rejnowski.bluemedia.db.HibernateUtil;
 import com.rejnowski.bluemedia.db.User;
+import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -65,17 +66,41 @@ public class RestService {
         LoginRequest request = gson.fromJson(json, LoginRequest.class);
         String message;
         DBDao dao = new DBDao();
-        Optional<User> userOpt = dao.getUser(request.getLogin());
-        if (!userOpt.isPresent()) return Response.status(Response.Status.UNAUTHORIZED).build();
+//        Optional<User> userOpt = dao.getUser(request.getLogin());
+//        if (!userOpt.isPresent()) return Response.status(Response.Status.UNAUTHORIZED).build();
+//        else {
+//            User dbUser = userOpt.get();
+//            if (dbUser.getLogin().equals(request.getLogin()) && dbUser.getPassword().equals(request.getPassword())) {
+//                LoginResponse response = new LoginResponse("tokenik");
+//
+//                message =gson.toJson(response);
+//                return Response.ok(message, MediaType.APPLICATION_JSON).build();
+//
+//            } else return Response.status(Response.Status.UNAUTHORIZED).build();
+//        }
+
+        DBDao.LoginResult loginResult = dao.tryLogin(request.getLogin(),request.getPassword());
+        if(loginResult== DBDao.LoginResult.PASSWORD_INCORRECT){
+            Response.ResponseBuilder builder = new ResponseBuilderImpl();
+            builder.status(Response.Status.UNAUTHORIZED);
+            LoginResponse loginResponse = new LoginResponse("password incorrect","");
+            builder.entity(gson.toJson(loginResponse));
+            return builder.status(Response.Status.UNAUTHORIZED).build();
+        }
+        else if(loginResult== DBDao.LoginResult.LOGIN_INCORRECT) {
+            Response.ResponseBuilder builder = new ResponseBuilderImpl();
+            LoginResponse loginResponse = new LoginResponse("user doesn't exist","");
+            builder.entity(gson.toJson(loginResponse));
+            return builder.status(Response.Status.UNAUTHORIZED).build();
+        }
         else {
-            User dbUser = userOpt.get();
-            if (dbUser.getLogin().equals(request.getLogin()) && dbUser.getPassword().equals(request.getPassword())) {
-                LoginResponse response = new LoginResponse("tokenik");
 
-                message =gson.toJson(response);
-                return Response.ok(message, MediaType.APPLICATION_JSON).build();
-
-            } else return Response.status(Response.Status.UNAUTHORIZED).build();
+            Response.ResponseBuilder builder = new ResponseBuilderImpl();
+            builder.status(Response.Status.OK);
+            Optional<String> tokenOpt = dao.getToken(request.getLogin());
+            LoginResponse loginResponse = new LoginResponse("logged in successfuly",tokenOpt.get());
+            builder.entity(gson.toJson(loginResponse));
+            return builder.status(Response.Status.OK).build();
         }
 
     }

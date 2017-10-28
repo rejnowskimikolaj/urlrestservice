@@ -3,10 +3,22 @@ package com.rejnowski.bluemedia.model;
 public class LoginResponse {
 
     String token;
+    String message;
 
-    public LoginResponse(String token) {
-        this.token = token;
+    public String getMessage() {
+        return message;
     }
+
+    public LoginResponse(String message,String token ) {
+        this.token = token;
+        this.message = message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+
 
     public String getToken() {
         return token;
