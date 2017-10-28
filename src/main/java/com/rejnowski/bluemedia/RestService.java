@@ -6,11 +6,7 @@ import com.rejnowski.bluemedia.model.LoginRequest;
 import com.rejnowski.bluemedia.model.LoginResponse;
 import com.rejnowski.bluemedia.model.UrlPostRequest;
 import com.rejnowski.bluemedia.model.UrlPostRequestResponse;
-import com.rejnowski.bluemedia.db.HibernateUtil;
-import com.rejnowski.bluemedia.db.User;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -33,28 +29,23 @@ public class RestService {
         System.out.println(json);
         Gson gson= new Gson();
         UrlPostRequest request = gson.fromJson(json,UrlPostRequest.class);
-        String message;
-        if(request.getToken().equals("dobry_token"))
-        {
-            message = gson.toJson(new UrlPostRequestResponse("ok"));
 
-        }
-        else{
-            message = gson.toJson(new UrlPostRequestResponse("dupa"));
+        DBDao dao = new DBDao();
+        boolean isTokenCorrect = dao.isTokenCorrect(request.getToken());
+        if(isTokenCorrect) {
+            PageDownloader.startDownloading(request.getUrl());
 
+            Response.ResponseBuilder builder = new ResponseBuilderImpl();
+            UrlPostRequestResponse urlPostRequestResponse = new UrlPostRequestResponse("started downloading.");
+            builder.entity(gson.toJson(urlPostRequestResponse));
+            return builder.status(Response.Status.OK).build();
         }
-        return Response.ok(message, MediaType.APPLICATION_JSON).build();
+        Response.ResponseBuilder builder = new ResponseBuilderImpl();
+        UrlPostRequestResponse urlPostRequestResponse = new UrlPostRequestResponse("you have to login first.");
+        builder.entity(gson.toJson(urlPostRequestResponse));
+        return builder.status(Response.Status.UNAUTHORIZED).build();
     }
 
-    @GET
-    @Path("/get")
-//    @Produces("application/json")
-//    @Consumes("application/json")
-    public Response simpleGet( ) {
-
-
-        return Response.ok("ok", MediaType.APPLICATION_JSON).build();
-    }
 
     @POST
     @Path("/login")
@@ -66,23 +57,10 @@ public class RestService {
         LoginRequest request = gson.fromJson(json, LoginRequest.class);
         String message;
         DBDao dao = new DBDao();
-//        Optional<User> userOpt = dao.getUser(request.getLogin());
-//        if (!userOpt.isPresent()) return Response.status(Response.Status.UNAUTHORIZED).build();
-//        else {
-//            User dbUser = userOpt.get();
-//            if (dbUser.getLogin().equals(request.getLogin()) && dbUser.getPassword().equals(request.getPassword())) {
-//                LoginResponse response = new LoginResponse("tokenik");
-//
-//                message =gson.toJson(response);
-//                return Response.ok(message, MediaType.APPLICATION_JSON).build();
-//
-//            } else return Response.status(Response.Status.UNAUTHORIZED).build();
-//        }
 
         DBDao.LoginResult loginResult = dao.tryLogin(request.getLogin(),request.getPassword());
         if(loginResult== DBDao.LoginResult.PASSWORD_INCORRECT){
             Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            builder.status(Response.Status.UNAUTHORIZED);
             LoginResponse loginResponse = new LoginResponse("password incorrect","");
             builder.entity(gson.toJson(loginResponse));
             return builder.status(Response.Status.UNAUTHORIZED).build();
@@ -96,7 +74,6 @@ public class RestService {
         else {
 
             Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            builder.status(Response.Status.OK);
             Optional<String> tokenOpt = dao.getToken(request.getLogin());
             LoginResponse loginResponse = new LoginResponse("logged in successfuly",tokenOpt.get());
             builder.entity(gson.toJson(loginResponse));

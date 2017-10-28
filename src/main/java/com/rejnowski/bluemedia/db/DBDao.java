@@ -1,12 +1,12 @@
 package com.rejnowski.bluemedia.db;
 
+import com.rejnowski.bluemedia.utils.HibernateUtil;
 import com.rejnowski.bluemedia.utils.UtilClass;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,16 +92,22 @@ public class DBDao {
         TokenSession tokenSession = (TokenSession) criteria.uniqueResult();
         session.close();
         updateTimestamp(tokenSession);
-//        updateTimestamp(tokenSession);
-//        session.update(tokenSession);
-//        session.getTransaction().commit();
-//        session.close();
+        resetToken(tokenSession);
         return LoginResult.SUCCESS;
+    }
+
+    private void resetToken(TokenSession tokenSession) {
+        tokenSession.setToken(UtilClass.getSha1(System.currentTimeMillis()+tokenSession.userId+"bluemedia"));
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.update(tokenSession);
+        session.getTransaction().commit();
+        session.close();
     }
 
     private boolean isPasswordCorrect(String passwordSent, String dbPassword){
         String passwordSentHash = UtilClass.getSha1(passwordSent);
-       // DigestUtils.sha1Hex(passwordSent);
         return dbPassword.equalsIgnoreCase(passwordSentHash);
     }
 
@@ -112,14 +118,12 @@ public class DBDao {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-        Criteria criteria = session.createCriteria(Session.class);
+        Criteria criteria = session.createCriteria(TokenSession.class);
         criteria.add(Restrictions.eq("token",token));
         TokenSession tokenSession = (TokenSession) criteria.uniqueResult();
         session.close();
 
-        if(session==null) return false;
-
-
+        if(tokenSession==null) return false;
 
         return isSessionUpToDate(tokenSession);
     }

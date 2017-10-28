@@ -1,9 +1,17 @@
 package com.rejnowski.bluemedia.model;
 
 public class UrlPostRequestResponse {
-    String result;
+    String message;
 
-    public UrlPostRequestResponse(String result) {
-        this.result = result;
+    public UrlPostRequestResponse(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

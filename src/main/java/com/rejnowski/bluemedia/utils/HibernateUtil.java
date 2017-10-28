@@ -1,4 +1,4 @@
-package com.rejnowski.bluemedia.db;
+package com.rejnowski.bluemedia.utils;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
