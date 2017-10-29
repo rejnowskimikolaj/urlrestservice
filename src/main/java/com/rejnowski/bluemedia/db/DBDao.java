@@ -3,12 +3,18 @@ package com.rejnowski.bluemedia.db;
 import com.rejnowski.bluemedia.utils.HibernateUtil;
 import com.rejnowski.bluemedia.utils.UtilClass;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.Transformers;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DBDao {
 
@@ -170,6 +176,21 @@ public class DBDao {
 
         if(websiteResource==null) return Optional.empty();
         return Optional.of(websiteResource);
+
+    }
+
+    public List<String> getAllUrls(){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        Criteria criteria = session.createCriteria(WebsiteResource.class);
+        List<WebsiteResource> resources = criteria.list();
+        List<String> urls =new ArrayList<>();
+        if(resources!=null){
+//           urls= resources.stream().flatMap(WebsiteResource::getPageUrl).collect(Collectors.toList());
+            for(WebsiteResource resource:resources) urls.add(resource.getPageUrl());
+        }
+        return urls;
 
     }
 

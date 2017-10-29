@@ -12,6 +12,7 @@ import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 
 @Path("/bm")
@@ -90,14 +91,13 @@ public class RestService {
     @QueryParam("url") String url){
 
         DBDao dao = new DBDao();
+        if(url==null) return MyResponseBuilder.noUrlArgumentResponse();
         Optional<WebsiteResource> resourceOpt = dao.getWebsiteResourceByUrl(url);
         Gson gson= new Gson();
 
         if(resourceOpt.isPresent()) {
 
-            Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            builder.entity(gson.toJson(resourceOpt.get()));
-            return builder.status(Response.Status.OK).build();
+           return MyResponseBuilder.successfulGetUrlResponse(resourceOpt.get());
         }
         else{
             Response.ResponseBuilder builder = new ResponseBuilderImpl();
@@ -106,6 +106,19 @@ public class RestService {
             return builder.status(Response.Status.NO_CONTENT).build();
         }
 
+    }
+
+    @GET
+    @Path("/websites")
+    @Produces("application/json")
+    public Response getUrls()
+            {
+
+        DBDao dao = new DBDao();
+        List<String> list = dao.getAllUrls();
+        Gson gson = new Gson();
+        if(list.size()==0) return MyResponseBuilder.unSuccessfulGetUrlsResponse();
+        else return MyResponseBuilder.succesfulGetUrlsResponse(list);
     }
 
 
