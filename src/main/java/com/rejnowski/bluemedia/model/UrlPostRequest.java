@@ -4,7 +4,16 @@ package com.rejnowski.bluemedia.model;
 public class UrlPostRequest {
 
     private String url;
+    private String description;
     private String token;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getUrl() {
         return url;

@@ -27,25 +27,19 @@ public class RestService {
     @Path("/send_url")
     @Produces("application/json")
     @Consumes("application/json")
-    public Response postUrl( String json) {
+    public Response postUrl(String json) {
         System.out.println(json);
-        Gson gson= new Gson();
-        UrlPostRequest request = gson.fromJson(json,UrlPostRequest.class);
+        Gson gson = new Gson();
+        UrlPostRequest request = gson.fromJson(json, UrlPostRequest.class);
 
         DBDao dao = new DBDao();
         boolean isTokenCorrect = dao.isTokenCorrect(request.getToken());
-        if(isTokenCorrect) {
-            PageDownloader.startDownloading(request.getUrl());
+        if (isTokenCorrect) {
+            PageDownloader.startDownloading(request.getUrl(), request.getDescription());
 
-            Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            UrlPostRequestResponse urlPostRequestResponse = new UrlPostRequestResponse("started downloading.");
-            builder.entity(gson.toJson(urlPostRequestResponse));
-            return builder.status(Response.Status.OK).build();
+            return MyResponseBuilder.urlPostRequestAcceptedResponse();
         }
-        Response.ResponseBuilder builder = new ResponseBuilderImpl();
-        UrlPostRequestResponse urlPostRequestResponse = new UrlPostRequestResponse("you have to login first.");
-        builder.entity(gson.toJson(urlPostRequestResponse));
-        return builder.status(Response.Status.UNAUTHORIZED).build();
+        return MyResponseBuilder.urlPostRequestNotAcceptedResponse();
     }
 
 
@@ -53,33 +47,20 @@ public class RestService {
     @Path("/login")
     @Produces("application/json")
     @Consumes("application/json")
-    public Response login( String json) {
+    public Response login(String json) {
         System.out.println(json);
         Gson gson = new Gson();
         LoginRequest request = gson.fromJson(json, LoginRequest.class);
-        String message;
         DBDao dao = new DBDao();
+        DBDao.LoginResult loginResult = dao.tryLogin(request.getLogin(), request.getPassword());
+        if (loginResult == DBDao.LoginResult.PASSWORD_INCORRECT) {
+            return MyResponseBuilder.passwordIncorrectResponse();
+        } else if (loginResult == DBDao.LoginResult.LOGIN_INCORRECT) {
+            return MyResponseBuilder.loginIncorrectResponse(request.getLogin());
+        } else {
 
-        DBDao.LoginResult loginResult = dao.tryLogin(request.getLogin(),request.getPassword());
-        if(loginResult== DBDao.LoginResult.PASSWORD_INCORRECT){
-            Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            LoginResponse loginResponse = new LoginResponse("password incorrect","");
-            builder.entity(gson.toJson(loginResponse));
-            return builder.status(Response.Status.UNAUTHORIZED).build();
-        }
-        else if(loginResult== DBDao.LoginResult.LOGIN_INCORRECT) {
-            Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            LoginResponse loginResponse = new LoginResponse("user doesn't exist","");
-            builder.entity(gson.toJson(loginResponse));
-            return builder.status(Response.Status.UNAUTHORIZED).build();
-        }
-        else {
+            return MyResponseBuilder.succesfulLoginResponse(request.getLogin());
 
-            Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            Optional<String> tokenOpt = dao.getToken(request.getLogin());
-            LoginResponse loginResponse = new LoginResponse("logged in successfuly",tokenOpt.get());
-            builder.entity(gson.toJson(loginResponse));
-            return builder.status(Response.Status.OK).build();
         }
 
     }
@@ -88,22 +69,19 @@ public class RestService {
     @Path("/website")
     @Produces("application/json")
     public Response getWebsite(
-    @QueryParam("url") String url){
+            @QueryParam("url") String url) {
 
         DBDao dao = new DBDao();
-        if(url==null) return MyResponseBuilder.noUrlArgumentResponse();
-        Optional<WebsiteResource> resourceOpt = dao.getWebsiteResourceByUrl(url);
-        Gson gson= new Gson();
+        if (url == null) return MyResponseBuilder.noUrlArgumentResponse();
+        List<WebsiteResource> resources = dao.getWebsiteResourcesByUrl(url);
 
-        if(resourceOpt.isPresent()) {
 
-           return MyResponseBuilder.successfulGetUrlResponse(resourceOpt.get());
-        }
-        else{
-            Response.ResponseBuilder builder = new ResponseBuilderImpl();
-            UrlPostRequestResponse urlPostRequestResponse = new UrlPostRequestResponse("no resource with this url");
-            builder.entity(gson.toJson(urlPostRequestResponse));
-            return builder.status(Response.Status.NO_CONTENT).build();
+        if (resources.size() != 0) {
+
+            return MyResponseBuilder.successfulGetUrlResponse(resources);
+        } else {
+
+            return MyResponseBuilder.noResourcesGetResourcesResponse();
         }
 
     }
@@ -111,13 +89,13 @@ public class RestService {
     @GET
     @Path("/websites")
     @Produces("application/json")
-    public Response getUrls()
-            {
+    public Response getUrls(@QueryParam("from") long from, @QueryParam("to") long to) {
 
         DBDao dao = new DBDao();
-        List<String> list = dao.getAllUrls();
+        if (to == 0) to = System.currentTimeMillis();
+        List<String> list = dao.getAllUrls(from, to);
         Gson gson = new Gson();
-        if(list.size()==0) return MyResponseBuilder.unSuccessfulGetUrlsResponse();
+        if (list.size() == 0) return MyResponseBuilder.unSuccessfulGetUrlsResponse();
         else return MyResponseBuilder.succesfulGetUrlsResponse(list);
     }
 

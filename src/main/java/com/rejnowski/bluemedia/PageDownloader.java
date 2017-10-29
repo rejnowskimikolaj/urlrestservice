@@ -12,7 +12,7 @@ import java.net.URL;
 
 public class PageDownloader {
 
-    public static void startDownloading(String urlString){
+    public static void startDownloading(String urlString, String description){
         URL url;
         InputStream is = null;
         BufferedReader br;
@@ -30,8 +30,11 @@ public class PageDownloader {
             }
         } catch (MalformedURLException mue) {
             mue.printStackTrace();
+            description = mue.getMessage();
+
         } catch (IOException ioe) {
             ioe.printStackTrace();
+            description = ioe.getMessage();
         }
         finally {
             try {
@@ -39,7 +42,7 @@ public class PageDownloader {
             } catch (IOException ioe) {}
         }
 
-        WebsiteResource resource = new WebsiteResource(urlString,builder.toString(),"blabla,",System.currentTimeMillis());
+        WebsiteResource resource = new WebsiteResource(urlString,builder.toString(),description,System.currentTimeMillis());
         DBDao dao = new DBDao();
         dao.addResource(resource);
     }

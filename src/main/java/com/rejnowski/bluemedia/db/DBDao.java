@@ -3,18 +3,13 @@ package com.rejnowski.bluemedia.db;
 import com.rejnowski.bluemedia.utils.HibernateUtil;
 import com.rejnowski.bluemedia.utils.UtilClass;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.transform.Transformers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DBDao {
 
@@ -164,22 +159,23 @@ public class DBDao {
         session.close();
     }
 
-    public Optional<WebsiteResource> getWebsiteResourceByUrl(String url){
+
+
+    public List<WebsiteResource> getWebsiteResourcesByUrl(String url){
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         session.beginTransaction();
 
         Criteria criteria = session.createCriteria(WebsiteResource.class);
         criteria.add(Restrictions.eq("pageUrl",url));
-        WebsiteResource websiteResource = (WebsiteResource) criteria.uniqueResult();
+        List<WebsiteResource> websiteResources =  criteria.list();
         session.close();
 
-        if(websiteResource==null) return Optional.empty();
-        return Optional.of(websiteResource);
+        return websiteResources;
 
     }
 
-    public List<String> getAllUrls(){
+    public List<String> getAllUrls(long from, long to){
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         session.beginTransaction();
@@ -188,7 +184,10 @@ public class DBDao {
         List<String> urls =new ArrayList<>();
         if(resources!=null){
 //           urls= resources.stream().flatMap(WebsiteResource::getPageUrl).collect(Collectors.toList());
-            for(WebsiteResource resource:resources) urls.add(resource.getPageUrl());
+            for(WebsiteResource resource:resources){
+                if(resource.getTimestamp()<=to &&resource.getTimestamp()>=from)
+                urls.add(resource.getPageUrl());
+            }
         }
         return urls;
 

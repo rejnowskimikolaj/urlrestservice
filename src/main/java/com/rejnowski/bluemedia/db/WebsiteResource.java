@@ -16,6 +16,7 @@ public class WebsiteResource {
     @Column(name = "page_source")
     private String pageSource;
 
+    @Column
     private String description;
 
     private long timestamp;
