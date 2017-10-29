@@ -1,5 +1,6 @@
 package com.rejnowski.bluemedia.db;
 
+import com.rejnowski.bluemedia.model.UrlWithId;
 import com.rejnowski.bluemedia.utils.HibernateUtil;
 import com.rejnowski.bluemedia.utils.UtilClass;
 import org.hibernate.Criteria;
@@ -175,18 +176,32 @@ public class DBDao {
 
     }
 
-    public List<String> getAllUrls(long from, long to){
+    public Optional<WebsiteResource> getWebsiteResourceById(int id){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Criteria criteria = session.createCriteria(WebsiteResource.class);
+        criteria.add(Restrictions.idEq(id));
+        WebsiteResource websiteResource = (WebsiteResource) criteria.uniqueResult();
+        session.close();
+        if(websiteResource==null) return Optional.empty();
+        return Optional.of(websiteResource);
+
+    }
+
+    public List<UrlWithId> getAllUrls(long from, long to){
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         Criteria criteria = session.createCriteria(WebsiteResource.class);
         List<WebsiteResource> resources = criteria.list();
-        List<String> urls =new ArrayList<>();
+        List<UrlWithId> urls =new ArrayList<>();
         if(resources!=null){
 //           urls= resources.stream().flatMap(WebsiteResource::getPageUrl).collect(Collectors.toList());
             for(WebsiteResource resource:resources){
                 if(resource.getTimestamp()<=to &&resource.getTimestamp()>=from)
-                urls.add(resource.getPageUrl());
+                urls.add(new UrlWithId(resource.getPageUrl(),resource.getId()));
             }
         }
         return urls;

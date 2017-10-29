@@ -3,10 +3,7 @@ package com.rejnowski.bluemedia;
 import com.google.gson.Gson;
 import com.rejnowski.bluemedia.db.DBDao;
 import com.rejnowski.bluemedia.db.WebsiteResource;
-import com.rejnowski.bluemedia.model.LoginResponse;
-import com.rejnowski.bluemedia.model.UrlPostRequestResponse;
-import com.rejnowski.bluemedia.model.UrlsGetResponse;
-import com.rejnowski.bluemedia.model.WebsiteGetResponse;
+import com.rejnowski.bluemedia.model.*;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 
 import javax.ws.rs.core.Response;
@@ -82,7 +79,7 @@ public class MyResponseBuilder {
     }
 
 
-    public static Response succesfulGetUrlsResponse(List<String> urls){
+    public static Response succesfulGetUrlsResponse(List<UrlWithId> urls){
 
       return getUrlsResponse(urls,"success");
     }
@@ -91,7 +88,7 @@ public class MyResponseBuilder {
 
         return getUrlsResponse(Collections.EMPTY_LIST,"no urls");
     }
-    private static Response getUrlsResponse(List<String> urls,String message){
+    private static Response getUrlsResponse(List<UrlWithId> urls, String message){
         Response.ResponseBuilder builder = new ResponseBuilderImpl();
 
         UrlsGetResponse urlsGetResponse = new UrlsGetResponse(message,urls );

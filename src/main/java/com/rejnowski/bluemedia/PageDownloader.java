@@ -9,41 +9,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PageDownloader {
 
+    public static final int MAX_REQUESTS_BEING_EXECUTED_AMOUNT =1;
+    public static ExecutorService executorService = Executors.newFixedThreadPool(MAX_REQUESTS_BEING_EXECUTED_AMOUNT);
+
     public static void startDownloading(String urlString, String description){
-        URL url;
-        InputStream is = null;
-        BufferedReader br;
-        String line;
-
-        StringBuilder builder = new StringBuilder();
-        try {
-            url = new URL(urlString);
-            is = url.openStream();  // throws an IOException
-            br = new BufferedReader(new InputStreamReader(is));
-
-            while ((line = br.readLine()) != null) {
-                builder.append(line);
-                System.out.println(line);
-            }
-        } catch (MalformedURLException mue) {
-            mue.printStackTrace();
-            description = mue.getMessage();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            description = ioe.getMessage();
-        }
-        finally {
-            try {
-                if (is != null) is.close();
-            } catch (IOException ioe) {}
-        }
-
-        WebsiteResource resource = new WebsiteResource(urlString,builder.toString(),description,System.currentTimeMillis());
-        DBDao dao = new DBDao();
-        dao.addResource(resource);
+       executorService.execute(new DownloadingRunnable(urlString,description));
     }
 }

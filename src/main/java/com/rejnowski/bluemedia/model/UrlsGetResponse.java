@@ -4,9 +4,9 @@ import java.util.List;
 
 public class UrlsGetResponse {
     private String message;
-    private List<String> urls;
+    private List<UrlWithId> urls;
 
-    public UrlsGetResponse(String message, List<String> urls) {
+    public UrlsGetResponse(String message, List<UrlWithId> urls) {
         this.message = message;
         this.urls = urls;
     }
@@ -19,11 +19,11 @@ public class UrlsGetResponse {
         this.message = message;
     }
 
-    public List<String> getUrls() {
+    public List<UrlWithId> getUrls() {
         return urls;
     }
 
-    public void setUrls(List<String> urls) {
+    public void setUrls(List<UrlWithId> urls) {
         this.urls = urls;
     }
 }
