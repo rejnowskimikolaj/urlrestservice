@@ -2,6 +2,7 @@ package com.rejnowski.bluemedia;
 
 import com.google.gson.Gson;
 import com.rejnowski.bluemedia.db.DBDao;
+import com.rejnowski.bluemedia.db.WebsiteResource;
 import com.rejnowski.bluemedia.model.LoginRequest;
 import com.rejnowski.bluemedia.model.LoginResponse;
 import com.rejnowski.bluemedia.model.UrlPostRequest;
@@ -81,4 +82,31 @@ public class RestService {
         }
 
     }
+
+    @GET
+    @Path("/website")
+    @Produces("application/json")
+    public Response getWebsite(
+    @QueryParam("url") String url){
+
+        DBDao dao = new DBDao();
+        Optional<WebsiteResource> resourceOpt = dao.getWebsiteResourceByUrl(url);
+        Gson gson= new Gson();
+
+        if(resourceOpt.isPresent()) {
+
+            Response.ResponseBuilder builder = new ResponseBuilderImpl();
+            builder.entity(gson.toJson(resourceOpt.get()));
+            return builder.status(Response.Status.OK).build();
+        }
+        else{
+            Response.ResponseBuilder builder = new ResponseBuilderImpl();
+            UrlPostRequestResponse urlPostRequestResponse = new UrlPostRequestResponse("no resource with this url");
+            builder.entity(gson.toJson(urlPostRequestResponse));
+            return builder.status(Response.Status.NO_CONTENT).build();
+        }
+
+    }
+
+
 }

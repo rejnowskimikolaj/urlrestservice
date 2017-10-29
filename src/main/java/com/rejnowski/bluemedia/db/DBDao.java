@@ -149,5 +149,29 @@ public class DBDao {
             session.close();
     }
 
+    public void addResource(WebsiteResource websiteResource){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.save(websiteResource);
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    public Optional<WebsiteResource> getWebsiteResourceByUrl(String url){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Criteria criteria = session.createCriteria(WebsiteResource.class);
+        criteria.add(Restrictions.eq("pageUrl",url));
+        WebsiteResource websiteResource = (WebsiteResource) criteria.uniqueResult();
+        session.close();
+
+        if(websiteResource==null) return Optional.empty();
+        return Optional.of(websiteResource);
+
+    }
+
 
 }
