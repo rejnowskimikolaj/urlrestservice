@@ -1,4 +1,4 @@
-package com.rejnowski.bluemedia;
+package com.rejnowski.bluemedia.downloading;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

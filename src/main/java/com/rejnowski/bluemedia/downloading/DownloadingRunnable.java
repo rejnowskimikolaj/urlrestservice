@@ -1,5 +1,6 @@
-package com.rejnowski.bluemedia;
+package com.rejnowski.bluemedia.downloading;
 
+import com.rejnowski.bluemedia.db.DBDao;
 import com.rejnowski.bluemedia.db.model.WebsiteResource;
 
 import java.io.BufferedReader;

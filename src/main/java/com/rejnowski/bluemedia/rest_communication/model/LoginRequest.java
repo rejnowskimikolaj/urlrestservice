@@ -1,4 +1,4 @@
-package com.rejnowski.bluemedia.model;
+package com.rejnowski.bluemedia.rest_communication.model;
 
 public class LoginRequest {
 

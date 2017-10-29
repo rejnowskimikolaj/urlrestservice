@@ -1,10 +1,9 @@
-package com.rejnowski.bluemedia;
+package com.rejnowski.bluemedia.db;
 
 import com.rejnowski.bluemedia.db.model.TokenSession;
 import com.rejnowski.bluemedia.db.model.User;
 import com.rejnowski.bluemedia.db.model.WebsiteResource;
-import com.rejnowski.bluemedia.model.UrlWithId;
-import com.rejnowski.bluemedia.model.WebsiteGetResponse;
+import com.rejnowski.bluemedia.rest_communication.model.UrlWithId;
 import com.rejnowski.bluemedia.utils.HibernateUtil;
 import com.rejnowski.bluemedia.utils.UtilClass;
 import org.hibernate.Criteria;
@@ -43,6 +42,7 @@ public class DBDao {
         Criteria criteria = session.createCriteria(User.class);
         criteria.add(Restrictions.eq("login", login));
         List<User> list = criteria.list();
+        session.close();
 
         if(list.size()==1) return Optional.of(list.get(0));
 

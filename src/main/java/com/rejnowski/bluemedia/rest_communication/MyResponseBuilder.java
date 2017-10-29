@@ -1,8 +1,9 @@
-package com.rejnowski.bluemedia;
+package com.rejnowski.bluemedia.rest_communication;
 
 import com.google.gson.Gson;
+import com.rejnowski.bluemedia.db.DBDao;
 import com.rejnowski.bluemedia.db.model.WebsiteResource;
-import com.rejnowski.bluemedia.model.*;
+import com.rejnowski.bluemedia.rest_communication.model.*;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 
 import javax.ws.rs.core.Response;
