@@ -214,7 +214,7 @@ public class DBDao {
 
     }
 
-    public List<UrlWithId> getUrlsWithSourceContainingString(String text){
+    public List<WebsiteResource> getUrlsWithSourceContainingString(String text){
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         session.beginTransaction();
@@ -228,8 +228,17 @@ public class DBDao {
         Query query = session.createQuery(hql);
         List<UrlWithId> urls = new ArrayList<>();
         List<WebsiteResource> resources = query.list();
-        for(WebsiteResource resource:resources) urls.add(new UrlWithId(resource.getPageUrl(),resource.getId()));
-        return urls;
+//        for(WebsiteResource resource:resources) urls.add(new UrlWithId(resource.getPageUrl(),resource.getId()));
+        return resources;
+    }
+
+    public List<UrlWithId> getUrlsWithSourceContainingStringFromTo(String text,long from, long to){
+     List<WebsiteResource> resources = getUrlsWithSourceContainingString(text);
+     List<UrlWithId> urls = new ArrayList<>();
+     for(WebsiteResource resource:resources){
+         if(resource.getTimestamp()>=from&&resource.getTimestamp()<=to)urls.add(new UrlWithId(resource.getPageUrl(),resource.getId()));
+     }
+     return urls;
     }
 
 }
