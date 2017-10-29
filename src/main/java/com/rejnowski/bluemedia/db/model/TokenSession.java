@@ -1,4 +1,4 @@
-package com.rejnowski.bluemedia.db;
+package com.rejnowski.bluemedia.db.model;
 
 
 import javax.persistence.Column;
@@ -12,11 +12,11 @@ public class TokenSession {
 
     @Id
     @Column(name = "user_id")
-    int userId;
+    private int userId;
     @Column(name = "token")
-    String token;
+    private String token;
     @Column(name = "timestamp")
-    long timestamp;
+    private long timestamp;
 
     public int getUserId() {
         return userId;

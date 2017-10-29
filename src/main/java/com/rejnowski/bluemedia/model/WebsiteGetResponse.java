@@ -1,6 +1,6 @@
 package com.rejnowski.bluemedia.model;
 
-import com.rejnowski.bluemedia.db.WebsiteResource;
+import com.rejnowski.bluemedia.db.model.WebsiteResource;
 
 import java.util.List;
 

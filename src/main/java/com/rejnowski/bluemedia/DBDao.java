@@ -1,9 +1,14 @@
-package com.rejnowski.bluemedia.db;
+package com.rejnowski.bluemedia;
 
+import com.rejnowski.bluemedia.db.model.TokenSession;
+import com.rejnowski.bluemedia.db.model.User;
+import com.rejnowski.bluemedia.db.model.WebsiteResource;
 import com.rejnowski.bluemedia.model.UrlWithId;
+import com.rejnowski.bluemedia.model.WebsiteGetResponse;
 import com.rejnowski.bluemedia.utils.HibernateUtil;
 import com.rejnowski.bluemedia.utils.UtilClass;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
@@ -99,7 +104,7 @@ public class DBDao {
     }
 
     private void resetToken(TokenSession tokenSession) {
-        tokenSession.setToken(UtilClass.getSha1(System.currentTimeMillis()+tokenSession.userId+"bluemedia"));
+        tokenSession.setToken(UtilClass.getSha1(System.currentTimeMillis()+tokenSession.getUserId()+"bluemedia"));
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         session.beginTransaction();
@@ -196,6 +201,7 @@ public class DBDao {
         session.beginTransaction();
         Criteria criteria = session.createCriteria(WebsiteResource.class);
         List<WebsiteResource> resources = criteria.list();
+        session.close();
         List<UrlWithId> urls =new ArrayList<>();
         if(resources!=null){
 //           urls= resources.stream().flatMap(WebsiteResource::getPageUrl).collect(Collectors.toList());
@@ -208,5 +214,22 @@ public class DBDao {
 
     }
 
+    public List<UrlWithId> getUrlsWithSourceContainingString(String text){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        StringBuilder builder = new StringBuilder("");
+        builder.append("FROM WebsiteResource WHERE ");
+        builder.append("page_source");
+        builder.append(" LIKE '%");
+        builder.append(text);
+        builder.append("%' \n");
+        String hql = builder.toString();
+        Query query = session.createQuery(hql);
+        List<UrlWithId> urls = new ArrayList<>();
+        List<WebsiteResource> resources = query.list();
+        for(WebsiteResource resource:resources) urls.add(new UrlWithId(resource.getPageUrl(),resource.getId()));
+        return urls;
+    }
 
 }

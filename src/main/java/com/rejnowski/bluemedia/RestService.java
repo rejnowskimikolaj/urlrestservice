@@ -1,8 +1,7 @@
 package com.rejnowski.bluemedia;
 
 import com.google.gson.Gson;
-import com.rejnowski.bluemedia.db.DBDao;
-import com.rejnowski.bluemedia.db.WebsiteResource;
+import com.rejnowski.bluemedia.db.model.WebsiteResource;
 import com.rejnowski.bluemedia.model.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -74,7 +73,7 @@ public class RestService {
             Optional<WebsiteResource> resourceOpt = dao.getWebsiteResourceById(id);
             if(resourceOpt.isPresent()) {
                 resources.add(resourceOpt.get());
-               return MyResponseBuilder.successfulGetUrlResponse(resources);
+               return MyResponseBuilder.successfulGetResourcesResponse(resources);
             }
             else return MyResponseBuilder.noResourcesGetResourcesResponse();
 
@@ -86,7 +85,7 @@ public class RestService {
             if(resources.size()>maxSize&& maxSize>1) {
                 resources = resources.subList(0,maxSize);
             }
-            return MyResponseBuilder.successfulGetUrlResponse(resources);
+            return MyResponseBuilder.successfulGetResourcesResponse(resources);
         } else {
 
             return MyResponseBuilder.noResourcesGetResourcesResponse();
@@ -97,9 +96,14 @@ public class RestService {
     @GET
     @Path("/websites")
     @Produces("application/json")
-    public Response getUrls(@QueryParam("from") long from, @QueryParam("to") long to) {
+    public Response getUrls(@QueryParam("where_source_has") String sourceText,@QueryParam("from") long from, @QueryParam("to") long to) {
 
         DBDao dao = new DBDao();
+        if(sourceText!=null&&!sourceText.equals("")){
+            List<UrlWithId> urls = dao.getUrlsWithSourceContainingString(sourceText);
+            if(urls.size()==0)return MyResponseBuilder.unSuccessfulGetUrlsResponse();
+            return MyResponseBuilder.succesfulGetUrlsResponse(urls);
+        }
         if (to == 0) to = System.currentTimeMillis();
         List<UrlWithId> list = dao.getAllUrls(from, to);
         Gson gson = new Gson();

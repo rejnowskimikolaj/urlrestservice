@@ -12,9 +12,9 @@
         <property name="show_sql">true</property>
         <property name="connection.pool_size">1</property>
 
-        <mapping class="com.rejnowski.bluemedia.db.User"></mapping>
-        <mapping class="com.rejnowski.bluemedia.db.TokenSession"></mapping>
-        <mapping class="com.rejnowski.bluemedia.db.WebsiteResource"></mapping>
+        <mapping class="com.rejnowski.bluemedia.db.model.User"></mapping>
+        <mapping class="com.rejnowski.bluemedia.db.model.TokenSession"></mapping>
+        <mapping class="com.rejnowski.bluemedia.db.model.WebsiteResource"></mapping>
 
     </session-factory>
 </hibernate-configuration>

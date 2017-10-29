@@ -1,4 +1,4 @@
-package com.rejnowski.bluemedia.db;
+package com.rejnowski.bluemedia.db.model;
 
 import javax.persistence.*;
 

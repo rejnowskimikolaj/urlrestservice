@@ -1,7 +1,6 @@
 package com.rejnowski.bluemedia;
 
-import com.rejnowski.bluemedia.db.DBDao;
-import com.rejnowski.bluemedia.db.WebsiteResource;
+import com.rejnowski.bluemedia.db.model.WebsiteResource;
 
 import java.io.BufferedReader;
 import java.io.IOException;

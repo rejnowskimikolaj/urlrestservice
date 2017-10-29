@@ -1,13 +1,11 @@
 package com.rejnowski.bluemedia;
 
 import com.google.gson.Gson;
-import com.rejnowski.bluemedia.db.DBDao;
-import com.rejnowski.bluemedia.db.WebsiteResource;
+import com.rejnowski.bluemedia.db.model.WebsiteResource;
 import com.rejnowski.bluemedia.model.*;
 import com.sun.jersey.core.spi.factory.ResponseBuilderImpl;
 
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +54,7 @@ public class MyResponseBuilder {
         return builder.status(Response.Status.OK).build();
     }
 
-    public static Response successfulGetUrlResponse(List<WebsiteResource> websiteResources){
+    public static Response successfulGetResourcesResponse(List<WebsiteResource> websiteResources){
       return   getResourcesResponse(websiteResources,"success");
     }
 
